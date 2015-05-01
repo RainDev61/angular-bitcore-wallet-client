@@ -7,7 +7,7 @@
   "devDependencies": {
     "browserify": "^9.0.3",
     "uglify": "^0.1.1",
-    "bitcore-wallet-client": "git://github.com/startcoin-project/bitcore-wallet-client.git#1a340ef78432063a3dc6a001bfbf8f819e485bf5"
+    "bitcore-wallet-client": "git://github.com/startcoin-project/bitcore-wallet-client.git#01bfdc47904671a5796ff9fad0f33ab141c835a3"
   },
   "repository": {
     "url": "git://github.com/startcoin-project/angular-bitcore-wallet-client.git",

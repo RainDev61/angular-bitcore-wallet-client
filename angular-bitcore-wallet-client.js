@@ -2137,7 +2137,7 @@ var $ = require('preconditions').singleton();
 var Utils = {};
 
 var _UNITS = {
-  btc: {
+  START: {
     toSatoshis: 100000000,
     decimals: 6
   },
@@ -23564,8 +23564,8 @@ URI.isValid = function(arg, knownParams) {
 URI.parse = function(uri) {
   var info = URL.parse(uri, true);
 
-  if (info.protocol !== 'bitcoin:') {
-    throw new TypeError('Invalid bitcoin URI');
+  if (info.protocol !== 'startcoin:') {
+    throw new TypeError('Invalid startcoin URI');
   }
 
   // workaround to host insensitiveness
@@ -23589,7 +23589,7 @@ URI.prototype._fromObject = function(obj) {
   /* jshint maxcomplexity: 10 */
 
   if (!Address.isValid(obj.address)) {
-    throw new TypeError('Invalid bitcoin address');
+    throw new TypeError('Invalid startcoin address');
   }
 
   this.address = new Address(obj.address);
@@ -23663,7 +23663,7 @@ URI.prototype.toString = function() {
   _.extend(query, this.extras);
 
   return URL.format({
-    protocol: 'bitcoin:',
+    protocol: 'startcoin:',
     host: this.address,
     query: query
   });

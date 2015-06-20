@@ -60,3 +60,5 @@ Session.vim
 .netrwhist
 *~
 
+
+.idea/*

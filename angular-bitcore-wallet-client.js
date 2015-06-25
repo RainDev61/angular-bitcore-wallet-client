@@ -23099,7 +23099,7 @@ var Unit = require('../unit');
  * @param {string|Script} data.scriptPubKey the script that must be resolved to release the funds
  * @param {string|Script=} data.script alias for `scriptPubKey`
  * @param {number} data.amount amount of bitcoins associated
- * @param {number=} data.satoshis alias for `amount`, but expressed in satoshis (1 START = 1e8 satoshis)
+ * @param {number=} data.satoshis alias for `amount`, but expressed in satoshis (1 BTC = 1e8 satoshis)
  * @param {string|Address=} data.address the associated address to the script, if provided
  */
 function UnspentOutput(data) {
@@ -23124,7 +23124,7 @@ function UnspentOutput(data) {
   var script = new Script(data.scriptPubKey || data.script);
   $.checkArgument(!_.isUndefined(data.amount) || !_.isUndefined(data.satoshis),
                   'Must provide an amount for the output');
-  var amount = !_.isUndefined(data.amount) ? new Unit.fromSTART(data.amount).toSatoshis() : data.satoshis;
+  var amount = !_.isUndefined(data.amount) ? new Unit.fromBTC(data.amount).toSatoshis() : data.satoshis;
   $.checkArgument(_.isNumber(amount), 'Amount must be a number');
   JSUtil.defineImmutable(this, {
     address: address,
@@ -23182,7 +23182,7 @@ UnspentOutput.prototype.toObject = function() {
     txid: this.txId,
     vout: this.outputIndex,
     scriptPubKey: this.script.toBuffer().toString('hex'),
-    amount: Unit.fromSatoshis(this.satoshis).toSTART()
+    amount: Unit.fromSatoshis(this.satoshis).toBTC()
   };
 };
 
@@ -23206,21 +23206,21 @@ var UNITS = {
 
 /**
  * Utility for handling and converting bitcoins units. The supported units are
- * START, mSTART, bits (also named uSTART) and satoshis. A unit instance can be created with an
- * amount and a unit code, or alternatively using static methods like {fromSTART}.
+ * BTC, mBTC, bits (also named uBTC) and satoshis. A unit instance can be created with an
+ * amount and a unit code, or alternatively using static methods like {fromBTC}.
  * It also allows to be created from a fiat amount and the exchange rate, or
  * alternatively using the {fromFiat} static method.
  * You can consult for different representation of a unit instance using it's
  * {to} method, the fixed unit methods like {toSatoshis} or alternatively using
  * the unit accessors. It also can be converted to a fiat amount by providing the
- * corresponding START/fiat exchange rate.
+ * corresponding BTC/fiat exchange rate.
  *
  * @example
  * ```javascript
- * var sats = Unit.fromSTART(1.3).toSatoshis();
- * var mili = Unit.fromBits(1.3).to(Unit.mSTART);
+ * var sats = Unit.fromBTC(1.3).toSatoshis();
+ * var mili = Unit.fromBits(1.3).to(Unit.mBTC);
  * var bits = Unit.fromFiat(1.3, 350).bits;
- * var btc = new Unit(1.3, Unit.bits).START;
+ * var btc = new Unit(1.3, Unit.bits).BTC;
  * ```
  *
  * @param {Number} amount - The amount to be represented
@@ -23228,18 +23228,18 @@ var UNITS = {
  * @returns {Unit} A new instance of an Unit
  * @constructor
  */
-, code) {
+function Unit(amount, code) {
   if (!(this instanceof Unit)) {
     return new Unit(amount, code);
   }
 
-  // convert fiat to START
+  // convert fiat to BTC
   if (_.isNumber(code)) {
     if (code <= 0) {
       throw new errors.Unit.InvalidRate(code);
     }
     amount = amount / code;
-    code = Unit.START;
+    code = Unit.BTC;
   }
 
   this._value = this._from(amount, code);
@@ -23273,23 +23273,23 @@ Unit.fromJSON = function fromJSON(json){
 };
 
 /**
- * Returns a Unit instance created from an amount in START
+ * Returns a Unit instance created from an amount in BTC
  *
- * @param {Number} amount - The amount in START
+ * @param {Number} amount - The amount in BTC
  * @returns {Unit} A Unit instance
  */
-Unit.fromSTART = function(amount) {
-  return new Unit(amount, Unit.START);
+Unit.fromBTC = function(amount) {
+  return new Unit(amount, Unit.BTC);
 };
 
 /**
- * Returns a Unit instance created from an amount in mSTART
+ * Returns a Unit instance created from an amount in mBTC
  *
- * @param {Number} amount - The amount in mSTART
+ * @param {Number} amount - The amount in mBTC
  * @returns {Unit} A Unit instance
  */
 Unit.fromMilis = function(amount) {
-  return new Unit(amount, Unit.mSTART);
+  return new Unit(amount, Unit.mBTC);
 };
 
 /**
@@ -23316,7 +23316,7 @@ Unit.fromSatoshis = function(amount) {
  * Returns a Unit instance created from a fiat amount and exchange rate.
  *
  * @param {Number} amount - The amount in fiat
- * @param {Number} rate - The exchange rate START/fiat
+ * @param {Number} rate - The exchange rate BTC/fiat
  * @returns {Unit} A Unit instance
  */
 Unit.fromFiat = function(amount, rate) {
@@ -23341,7 +23341,7 @@ Unit.prototype.to = function(code) {
     if (code <= 0) {
       throw new errors.Unit.InvalidRate(code);
     }
-    return parseFloat((this.START * code).toFixed(2));
+    return parseFloat((this.BTC * code).toFixed(2));
   }
 
   if (!UNITS[code]) {
@@ -23353,21 +23353,21 @@ Unit.prototype.to = function(code) {
 };
 
 /**
- * Returns the value represented in START
+ * Returns the value represented in BTC
  *
- * @returns {Number} The value converted to START
+ * @returns {Number} The value converted to BTC
  */
-Unit.prototype.toSTART = function() {
-  return this.to(Unit.START);
+Unit.prototype.toBTC = function() {
+  return this.to(Unit.BTC);
 };
 
 /**
- * Returns the value represented in mSTART
+ * Returns the value represented in mBTC
  *
- * @returns {Number} The value converted to mSTART
+ * @returns {Number} The value converted to mBTC
  */
 Unit.prototype.toMilis = function() {
-  return this.to(Unit.mSTART);
+  return this.to(Unit.mBTC);
 };
 
 /**
@@ -23391,7 +23391,7 @@ Unit.prototype.toSatoshis = function() {
 /**
  * Returns the value represented in fiat
  *
- * @param {string} rate - The exchange rate between START/currency
+ * @param {string} rate - The exchange rate between BTC/currency
  * @returns {Number} The value converted to satoshis
  */
 Unit.prototype.atRate = function(rate) {
@@ -23414,8 +23414,8 @@ Unit.prototype.toString = function() {
  */
 Unit.prototype.toObject = function toObject() {
   return {
-    amount: this.START,
-    code: Unit.START
+    amount: this.BTC,
+    code: Unit.BTC
   };
 };
 
@@ -23598,9 +23598,9 @@ URI.prototype._fromObject = function(obj) {
 };
 
 /**
- * Internal function to transform a START string amount into satoshis
+ * Internal function to transform a BTC string amount into satoshis
  *
- * @param {string} amount - Amount START string
+ * @param {string} amount - Amount BTC string
  * @throws {TypeError} Invalid amount
  * @returns {Object} Amount represented in satoshis
  */
@@ -23609,7 +23609,7 @@ URI.prototype._parseAmount = function(amount) {
   if (isNaN(amount)) {
     throw new TypeError('Invalid amount');
   }
-  return Unit.fromSTART(amount).toSatoshis();
+  return Unit.fromBTC(amount).toSatoshis();
 };
 
 URI.prototype.toObject = function toObject() {
@@ -23636,7 +23636,7 @@ URI.prototype.toJSON = function toJSON() {
 URI.prototype.toString = function() {
   var query = {};
   if (this.amount) {
-    query.amount = Unit.fromSatoshis(this.amount).toSTART();
+    query.amount = Unit.fromSatoshis(this.amount).toBTC();
   }
   if (this.message) {
     query.message = this.message;

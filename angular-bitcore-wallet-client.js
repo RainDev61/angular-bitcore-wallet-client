@@ -2140,11 +2140,7 @@ var _UNITS = {
   START: {
     toSatoshis: 100000000,
     decimals: 6
-  },
-  bit: {
-    toSatoshis: 100,
-    decimals: 0
-  },
+  }
 };
 
 Utils.formatAmount = function(satoshis, unit, opts) {

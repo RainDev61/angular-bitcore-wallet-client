@@ -23197,9 +23197,9 @@ var errors = require('./errors');
 var JSUtil = require('./util/js');
 
 var UNITS = {
-  'BTC'      : [1e8, 8],
-  'mBTC'     : [1e5, 5],
-  'uBTC'     : [1e2, 2],
+  'START'      : [1e8, 8],
+  'mSTART'     : [1e5, 5],
+  'uSTART'     : [1e2, 2],
   'bits'     : [1e2, 2],
   'satoshis' : [1, 0]
 };

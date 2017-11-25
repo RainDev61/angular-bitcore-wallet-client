@@ -2137,7 +2137,7 @@ var $ = require('preconditions').singleton();
 var Utils = {};
 
 var _UNITS = {
-  START: {
+  IRI: {
     toSatoshis: 100000000,
     decimals: 6
   }
@@ -18041,11 +18041,11 @@ addNetwork({
   scripthash: 0x05,
   xpubkey:  0x0488b21e,
   xprivkey: 0x0488ade4,
-  networkMagic: 0xffc4badf,
-  port: 9247,
+  networkMagic: 0xfec2b3ee,
+  port: 9816,
   dnsSeeds: [
-  'node1.startcoin.org',
-  'node2.startcoin.org'
+  '138.197.169.79',
+  '165.227.82.30'
   ]
 });
 
@@ -23099,7 +23099,7 @@ var Unit = require('../unit');
  * @param {string|Script} data.scriptPubKey the script that must be resolved to release the funds
  * @param {string|Script=} data.script alias for `scriptPubKey`
  * @param {number} data.amount amount of bitcoins associated
- * @param {number=} data.satoshis alias for `amount`, but expressed in satoshis (1 START = 1e8 satoshis)
+ * @param {number=} data.satoshis alias for `amount`, but expressed in satoshis (1 IRI = 1e8 satoshis)
  * @param {string|Address=} data.address the associated address to the script, if provided
  */
 function UnspentOutput(data) {
@@ -23197,30 +23197,30 @@ var errors = require('./errors');
 var JSUtil = require('./util/js');
 
 var UNITS = {
-  'START'      : [1e8, 8],
-  'mSTART'     : [1e5, 5],
-  'uSTART'     : [1e2, 2],
+  'IRI'      : [1e8, 8],
+  'mIRI'     : [1e5, 5],
+  'uIRI'     : [1e2, 2],
   'bits'     : [1e2, 2],
   'satoshis' : [1, 0]
 };
 
 /**
  * Utility for handling and converting bitcoins units. The supported units are
- * START, mSTART, bits (also named uSTART) and satoshis. A unit instance can be created with an
+ * IRI, mIRI, bits (also named uIRI) and satoshis. A unit instance can be created with an
  * amount and a unit code, or alternatively using static methods like {fromSTART}.
  * It also allows to be created from a fiat amount and the exchange rate, or
  * alternatively using the {fromFiat} static method.
  * You can consult for different representation of a unit instance using it's
  * {to} method, the fixed unit methods like {toSatoshis} or alternatively using
  * the unit accessors. It also can be converted to a fiat amount by providing the
- * corresponding START/fiat exchange rate.
+ * corresponding IRI/fiat exchange rate.
  *
  * @example
  * ```javascript
  * var sats = Unit.fromSTART(1.3).toSatoshis();
- * var mili = Unit.fromBits(1.3).to(Unit.mSTART);
+ * var mili = Unit.fromBits(1.3).to(Unit.mIRI);
  * var bits = Unit.fromFiat(1.3, 350).bits;
- * var btc = new Unit(1.3, Unit.bits).START;
+ * var btc = new Unit(1.3, Unit.bits).IRI;
  * ```
  *
  * @param {Number} amount - The amount to be represented
@@ -23233,13 +23233,13 @@ function Unit(amount, code) {
     return new Unit(amount, code);
   }
 
-  // convert fiat to START
+  // convert fiat to IRI
   if (_.isNumber(code)) {
     if (code <= 0) {
       throw new errors.Unit.InvalidRate(code);
     }
     amount = amount / code;
-    code = Unit.START;
+    code = Unit.IRI;
   }
 
   this._value = this._from(amount, code);
@@ -23273,23 +23273,23 @@ Unit.fromJSON = function fromJSON(json){
 };
 
 /**
- * Returns a Unit instance created from an amount in START
+ * Returns a Unit instance created from an amount in IRI
  *
- * @param {Number} amount - The amount in START
+ * @param {Number} amount - The amount in IRI
  * @returns {Unit} A Unit instance
  */
 Unit.fromSTART = function(amount) {
-  return new Unit(amount, Unit.START);
+  return new Unit(amount, Unit.IRI);
 };
 
 /**
- * Returns a Unit instance created from an amount in mSTART
+ * Returns a Unit instance created from an amount in mIRI
  *
- * @param {Number} amount - The amount in mSTART
+ * @param {Number} amount - The amount in mIRI
  * @returns {Unit} A Unit instance
  */
 Unit.fromMilis = function(amount) {
-  return new Unit(amount, Unit.mSTART);
+  return new Unit(amount, Unit.mIRI);
 };
 
 /**
@@ -23316,7 +23316,7 @@ Unit.fromSatoshis = function(amount) {
  * Returns a Unit instance created from a fiat amount and exchange rate.
  *
  * @param {Number} amount - The amount in fiat
- * @param {Number} rate - The exchange rate START/fiat
+ * @param {Number} rate - The exchange rate IRI/fiat
  * @returns {Unit} A Unit instance
  */
 Unit.fromFiat = function(amount, rate) {
@@ -23341,7 +23341,7 @@ Unit.prototype.to = function(code) {
     if (code <= 0) {
       throw new errors.Unit.InvalidRate(code);
     }
-    return parseFloat((this.START * code).toFixed(2));
+    return parseFloat((this.IRI * code).toFixed(2));
   }
 
   if (!UNITS[code]) {
@@ -23353,21 +23353,21 @@ Unit.prototype.to = function(code) {
 };
 
 /**
- * Returns the value represented in START
+ * Returns the value represented in IRI
  *
- * @returns {Number} The value converted to START
+ * @returns {Number} The value converted to IRI
  */
 Unit.prototype.toSTART = function() {
-  return this.to(Unit.START);
+  return this.to(Unit.IRI);
 };
 
 /**
- * Returns the value represented in mSTART
+ * Returns the value represented in mIRI
  *
- * @returns {Number} The value converted to mSTART
+ * @returns {Number} The value converted to mIRI
  */
 Unit.prototype.toMilis = function() {
-  return this.to(Unit.mSTART);
+  return this.to(Unit.mIRI);
 };
 
 /**
@@ -23391,7 +23391,7 @@ Unit.prototype.toSatoshis = function() {
 /**
  * Returns the value represented in fiat
  *
- * @param {string} rate - The exchange rate between START/currency
+ * @param {string} rate - The exchange rate between IRI/currency
  * @returns {Number} The value converted to satoshis
  */
 Unit.prototype.atRate = function(rate) {
@@ -23414,8 +23414,8 @@ Unit.prototype.toString = function() {
  */
 Unit.prototype.toObject = function toObject() {
   return {
-    amount: this.START,
-    code: Unit.START
+    amount: this.IRI,
+    code: Unit.IRI
   };
 };
 
@@ -23551,8 +23551,8 @@ URI.isValid = function(arg, knownParams) {
 URI.parse = function(uri) {
   var info = URL.parse(uri, true);
 
-  if (info.protocol !== 'startcoin:') {
-    throw new TypeError('Invalid startcoin URI');
+  if (info.protocol !== 'Iridium:') {
+    throw new TypeError('Invalid Iridium URI');
   }
 
   // workaround to host insensitiveness
@@ -23576,7 +23576,7 @@ URI.prototype._fromObject = function(obj) {
   /* jshint maxcomplexity: 10 */
 
   if (!Address.isValid(obj.address)) {
-    throw new TypeError('Invalid startcoin address');
+    throw new TypeError('Invalid Iridium address');
   }
 
   this.address = new Address(obj.address);
@@ -23598,9 +23598,9 @@ URI.prototype._fromObject = function(obj) {
 };
 
 /**
- * Internal function to transform a START string amount into satoshis
+ * Internal function to transform a IRI string amount into satoshis
  *
- * @param {string} amount - Amount START string
+ * @param {string} amount - Amount IRI string
  * @throws {TypeError} Invalid amount
  * @returns {Object} Amount represented in satoshis
  */
@@ -23650,7 +23650,7 @@ URI.prototype.toString = function() {
   _.extend(query, this.extras);
 
   return URL.format({
-    protocol: 'startcoin:',
+    protocol: 'Iridium:',
     host: this.address,
     query: query
   });
@@ -37839,7 +37839,7 @@ module.exports={
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// UMD HEADER START 
+// UMD HEADER IRI 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -38316,7 +38316,7 @@ function b64_enc (data) {
     return enc;
 }
     return request;
-//UMD FOOTER START
+//UMD FOOTER IRI
 }));
 //UMD FOOTER END
 
